@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Fake News Detection</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        /* NAVBAR */
+
+        nav {
+            padding: 25px 0;
+            border-bottom: 1px solid #334155;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #38bdf8;
+        }
+
+        .model-badge {
+            background: #1e293b;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+
+        /* HERO */
+
+        .hero {
+            text-align: center;
+            padding: 70px 20px 40px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 18px;
+        }
+
+        .hero h1 span {
+            color: #38bdf8;
+        }
+
+        .hero p {
+            color: #94a3b8;
+            font-size: 18px;
+            max-width: 700px;
+            margin: auto;
+            line-height: 1.6;
+        }
+
+        /* CARD */
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 18px;
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 900px;
+        }
+
+        .card h2 {
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 260px;
+            resize: vertical;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 12px;
+            padding: 18px;
+            color: white;
+            font-size: 16px;
+            line-height: 1.6;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #38bdf8;
+        }
+
+        textarea::placeholder {
+            color: #64748b;
+        }
+
+        .button-container {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        button {
+            background: #38bdf8;
+            color: #082f49;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #7dd3fc;
+            transform: translateY(-2px);
+        }
+
+        /* ERROR */
+
+        .error {
+            background: #450a0a;
+            border: 1px solid #ef4444;
+            color: #fecaca;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* RESULT */
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .result.fake {
+            background: #450a0a;
+            border: 1px solid #ef4444;
+        }
+
+        .result.real {
+            background: #052e16;
+            border: 1px solid #22c55e;
+        }
+
+        .result-icon {
+            font-size: 45px;
+            margin-bottom: 10px;
+        }
+
+        .result h2 {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .result p {
+            color: #cbd5e1;
+        }
+
+        /* MODEL INFORMATION */
+
+        .info-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 900px;
+            margin: 30px auto 60px;
+        }
+
+        .info-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .info-card h3 {
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            color: #cbd5e1;
+            font-size: 15px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            text-align: center;
+            border-top: 1px solid #334155;
+            padding: 25px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .note {
+            max-width: 800px;
+            margin: 20px auto;
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 700px) {
+
+            .hero h1 {
+                font-size: 35px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .info-section {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-content {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            textarea {
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav>
+        <div class="container nav-content">
+
+            <div class="logo">
+                📰 <span>Fake</span> News Detection
+            </div>
+
+            <div class="model-badge">
+                Linear SVM + TF-IDF
+            </div>
+
+        </div>
+    </nav>
+
+
+    <!-- HERO SECTION -->
+
+    <section class="hero">
+
+        <h1>
+            Detect <span>Fake News</span>
+            Using Machine Learning
+        </h1>
+
+        <p>
+            Enter a news article below and our machine learning model
+            will analyze its textual patterns and classify it as
+            potentially fake or real.
+        </p>
+
+    </section>
+
+
+    <!-- MAIN CONTENT -->
+
+    <div class="container">
+
+        <div class="card">
+
+            <h2>🔍 Analyze News Article</h2>
+
+            <p class="card-description">
+                Paste the complete news article below for prediction.
+            </p>
+
+
+            <!-- ERROR MESSAGE -->
+
+            {% if error %}
+
+            <div class="error">
+                ⚠️ {{ error }}
+            </div>
+
+            {% endif %}
+
+
+            <!-- NEWS FORM -->
+
+            <form action="/predict" method="POST">
+
+                <textarea
+                    name="news_text"
+                    placeholder="Paste your news article here..."
+                    required
+                >{{ news_text if news_text else "" }}</textarea>
+
+
+                <div class="button-container">
+
+                    <button type="submit">
+                        🔎 Check News
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <!-- RESULT -->
+
+            {% if result %}
+
+                {% if result.status == "fake" %}
+
+                <div class="result fake">
+
+                    <div class="result-icon">
+                        🚨
+                    </div>
+
+                    <h2>
+                        {{ result.prediction }}
+                    </h2>
+
+                    <p>
+                        The machine learning model classified this
+                        article as potentially fake.
+                    </p>
+
+                </div>
+
+                {% else %}
+
+                <div class="result real">
+
+                    <div class="result-icon">
+                        ✅
+                    </div>
+
+                    <h2>
+                        {{ result.prediction }}
+                    </h2>
+
+                    <p>
+                        The machine learning model classified this
+                        article as potentially real.
+                    </p>
+
+                </div>
+
+                {% endif %}
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- MODEL INFORMATION -->
+
+        <div class="info-section">
+
+            <div class="info-card">
+
+                <h3>🤖 Model</h3>
+
+                <p>
+                    Linear Support Vector Machine
+                </p>
+
+            </div>
+
+
+            <div class="info-card">
+
+                <h3>📊 Features</h3>
+
+                <p>
+                    TF-IDF Text Features
+                </p>
+
+            </div>
+
+
+            <div class="info-card">
+
+                <h3>🎯 Accuracy</h3>
+
+                <p>
+                    99.18% on the project test set
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="note">
+
+            ⚠️ This system provides a machine-learning-based
+            classification. Always verify important news using
+            reliable sources before treating it as factual.
+
+        </div>
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        Fake News Detection System |
+        Machine Learning Project
+
+    </footer>
+
+</body>
+</html>
